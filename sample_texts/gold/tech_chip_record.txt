@@ -1,0 +1,3 @@
+A chipmaker unveiled what it calls the world's most advanced AI chip, claiming triple the performance of its last generation.
+The processor has over 200 billion transistors and uses a two-nanometer process.
+Shares jumped about 8 percent and major cloud providers have already ordered the chip.
