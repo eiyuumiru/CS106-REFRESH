@@ -8,10 +8,7 @@ __pycache__/
 .streamlit/secrets.toml
 *.log
 
-model/*.pt
-model/*.pth
-model/vocab.json
-model/meta.json
+model/*.zip
 
 .DS_Store
 Thumbs.db

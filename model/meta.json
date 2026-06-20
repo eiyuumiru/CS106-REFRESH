@@ -1,0 +1,37 @@
+{
+  "emb_dim": 200,
+  "lstm_hid": 600,
+  "sent_emb": 350,
+  "num_kernels": 7,
+  "max_doc_len": 120,
+  "max_sent_len": 100,
+  "m": 3,
+  "p": 10,
+  "k": 5,
+  "pad_id": 0,
+  "unk_id": 1,
+  "vocab_size": 50000,
+  "faithful_rouge": true,
+  "dataset": "CNN/DailyMail 3.0.0",
+  "embeddings": "GloVe 200d (Wikipedia+Gigaword)",
+  "n_train": 49998,
+  "n_val": 2000,
+  "n_test": 11490,
+  "epochs": 10,
+  "batch_size": 32,
+  "lr": 0.001,
+  "best_epoch": 1,
+  "best_val_r1": 34.37,
+  "results": {
+    "LEAD": {
+      "ROUGE-1": 40.03,
+      "ROUGE-2": 17.46,
+      "ROUGE-L": 36.33
+    },
+    "REFRESH": {
+      "ROUGE-1": 39.95,
+      "ROUGE-2": 17.4,
+      "ROUGE-L": 36.35
+    }
+  }
+}
