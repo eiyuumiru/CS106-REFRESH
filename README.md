@@ -1,53 +1,57 @@
-# REFRESH — Streamlit demo (CS106, Nhóm 3)
+# REFRESH — Extractive Summarization Demo
 
-Web demo cho paper **Ranking Sentences for Extractive Summarization with Reinforcement Learning** (Narayan et al., NAACL 2018).
-Dán một đoạn văn bản tiếng Anh + gold summary -> app sinh **bản tóm tắt trích xuất** bằng mô hình **REFRESH** đã train, so sánh với baseline **LEAD**, và chấm **ROUGE** so với gold summary.
+A small web app that runs **extractive text summarization** with a trained
+**REFRESH** model (Narayan et al., *Ranking Sentences for Extractive Summarization
+with Reinforcement Learning*, NAACL 2018). Paste an English article, get the
+top-ranked sentences, and compare against the **LEAD** baseline with **ROUGE** scoring.
 
-## 1. Cài đặt (BẮT BUỘC dùng venv — không cài vào Python tổng)
+The model ranks every sentence with `P(extract)` and picks the top *m*. Inference
+runs on CPU — the trained checkpoint is self-contained (embeddings included), so no
+GloVe or GPU is needed to serve it.
+
+## Quickstart
 
 ```bat
-cd app
 python -m venv .venv
 .venv\Scripts\python -m pip install -r requirements.txt
 .venv\Scripts\python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+.venv\Scripts\streamlit run app.py
 ```
 
-## 2. Lấy checkpoint REFRESH
+Open http://localhost:8501. The trained checkpoint ships in `model/`, so the app
+works out of the box.
 
-App cần 3 file trong `app/model/`: `refresh_best.pt`, `vocab.json`, `meta.json`.
+> Torch is installed separately from the CPU wheel index to avoid pulling the
+> multi-GB CUDA build.
 
-1. Mở `thuc_nghiem/REFRESH_train_for_app.ipynb` trên **Google Colab** (L4 GPU) -> `Runtime -> Run all`.
-2. Cell cuối **EXPORT FOR APP** sẽ tạo & tải về `refresh_app_bundle.zip`.
-3. Giải nén, copy 3 file vào `app/model/`.
+## Usage
 
-> Chưa có checkpoint, app vẫn chạy được — chỉ hiển thị baseline **LEAD** để test giao diện.
+1. Paste an English article into the input box.
+2. Paste its reference (gold) summary — required, it's what ROUGE scores against.
+3. Hit **Tóm tắt**.
 
-## 3. Chạy
+You get the REFRESH summary vs. the LEAD baseline, the chosen sentences highlighted
+inline, the per-sentence `P(extract)` table, and ROUGE-1/2/L for both.
 
-```bat
-.venv\Scripts\streamlit run streamlit_app.py
-```
-Mở trình duyệt tại `http://localhost:8501`.
-
-## 4. Dùng cho video demo
-
-- Dán một bài tin tức tiếng Anh vào ô đầu vào (có thể copy nội dung từ các file trong `sample_texts/`).
-- Bấm **Tóm tắt** -> xem câu được tô màu, điểm `P(extract)` từng câu, và so sánh LEAD vs REFRESH.
-- Dán **Gold summary** để app chấm **ROUGE-1/2/L** (rougeLsum + stemmer, đúng metric của paper).
-
-## Cấu trúc
+## Layout
 
 ```
-app/
-  streamlit_app.py     # UI
-  refresh_model.py     # kiến trúc REFRESH + tokenizer + inference (khớp notebook)
-  requirements.txt
-  model/               # <- đặt refresh_best.pt + vocab.json + meta.json vào đây
-  sample_texts/        # bài mẫu .txt (sample/ + gold/) - copy-paste thủ công
+app.py            Streamlit UI
+refresh_model.py  model architecture, tokenizer, inference
+requirements.txt
+model/            trained checkpoint + training notebook
+sample_texts/     example articles + gold summaries
 ```
 
-## Ghi chú faithful theo paper
+The `model/` directory holds the served checkpoint (`refresh_best.pt`,
+`vocab.json`, `meta.json`) plus `REFRESH_pipeline.ipynb` — the notebook that trains
+the model and re-exports those three files. Run it end-to-end to reproduce or retrain.
 
-- `refresh_model.py` copy **chính xác** kiến trúc trong notebook (CNN 1–7 ×50 -> 350; doc LSTM 600 đảo chiều; extractor LSTM init từ doc state -> Linear 2) nên `refresh_best.pt` load khớp.
-- App **không cần GloVe**: embedding đã train nằm trong checkpoint; chỉ cần `vocab.json` để map từ -> id.
-- ROUGE trong app dùng `rougeLsum` + Porter stemmer = khớp pyrouge `-m` của paper.
+## Notes
+
+- `refresh_model.py` rebuilds the exact architecture from training (CNN sentence
+  encoder, kernels 1–7 × 50 → 350; document LSTM-600 reading reversed; extractor
+  LSTM seeded from the document state → linear-2 classifier), so the checkpoint
+  loads cleanly.
+- ROUGE uses `rougeLsum` + Porter stemmer, matching the `pyrouge -m` setup the
+  paper reports.
